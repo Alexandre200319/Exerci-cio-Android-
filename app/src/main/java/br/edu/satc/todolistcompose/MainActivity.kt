@@ -14,35 +14,24 @@ import br.edu.satc.todolistcompose.ui.screens.HomeScreen
 import br.edu.satc.todolistcompose.ui.theme.ToDoListComposeTheme
 
 class MainActivity : ComponentActivity() {
+    private lateinit var database: TaskDatabase
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // Inicializar o banco de dados
+        database = TaskDatabase.getDatabase(this)
+
         setContent {
-            ToDoListComposeTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    HomeScreen()
-                }
-            }
+            // Pegar o ViewModel
+            val viewModel: MainViewModel = viewModel(factory = MainViewModelFactory(database.taskDao()))
+
+            // Tela principal
+            TaskListScreen(
+                tasks = viewModel.tasks,
+                onAddTask = { title, description -> viewModel.addTask(title, description) },
+                onDeleteTask = { task -> viewModel.deleteTask(task) }
+            )
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    ToDoListComposeTheme {
-        Greeting("Android")
     }
 }
